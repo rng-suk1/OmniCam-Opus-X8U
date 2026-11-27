@@ -434,13 +434,14 @@ bool loadLook(const std::string &name, LoadedLook &out) {
 }  // namespace
 
 bool sceneLensFor(double equivalentFocal, std::string &lens) {
+    if (!(equivalentFocal > 0)) return false;
     const SceneLens *best = nullptr;
     double bestError = 1e9;
     for (const SceneLens &l : sceneLenses) {
         double error = std::fabs(std::log(equivalentFocal / l.focal));
         if (error < bestError) bestError = error, best = &l;
     }
-    if (!best || !(bestError <= std::log(1.25))) return false;
+    if (!best) return false;
     lens = best->name;
     return true;
 }

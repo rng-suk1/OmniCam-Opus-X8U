@@ -646,10 +646,10 @@ public final class MasterColor {
                 || focals == null || focals.length == 0 || size == null || focals[0] <= 0) return null;
             double equivalent = focals[0] * 43.2666 / Math.hypot(size.getWidth(), size.getHeight());
             int best = -1;
-            double bestError = Math.log(1.25);
+            double bestError = Double.POSITIVE_INFINITY;
             for (int i = 0; i < LENS_FOCALS.length; ++i) {
                 double error = Math.abs(Math.log(equivalent / LENS_FOCALS[i]));
-                if (error <= bestError) { bestError = error; best = i; }
+                if (error < bestError) { bestError = error; best = i; }
             }
             if (best < 0) return null;
             lenses.put(id, LENS_NAMES[best]);

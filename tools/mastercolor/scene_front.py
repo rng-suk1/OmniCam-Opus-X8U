@@ -54,7 +54,7 @@ LENSES = load()
 def lens_for(equivalent_focal):
     """Rear lens whose 35 mm equivalent focal length is closest (ratio), or None beyond 25 %."""
     best = min(LENSES.values(), key=lambda l: abs(np.log(equivalent_focal / l.focal)))
-    return best.name if abs(np.log(equivalent_focal / best.focal)) <= np.log(1.25) else None
+    return best.name if equivalent_focal > 0 else None
 
 
 def rgb_to_hsv(c):
