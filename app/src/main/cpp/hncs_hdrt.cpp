@@ -26,7 +26,8 @@ namespace hncs_hdrt {
 namespace {
 
 constexpr const char *kTag = "HncsHdrt";
-constexpr double kSdrShoulderKnee = 0.35;
+constexpr double kSdrShoulderKnee = 0.45;
+constexpr double kSdrShoulderPower = 0.45;
 constexpr double kGainMapMax = 5.0;
 
 struct NativeHandle {
@@ -198,7 +199,13 @@ void afterMasterTransform(void *in, void *out, void *param, void *bufs) {
                     const double lum = hdr[0] * kP3Luma[0] + hdr[1] * kP3Luma[1] + hdr[2] * kP3Luma[2];
                     Vec3 sdrLin{0.0, 0.0, 0.0};
                     if (lum > 0.0) {
-                        const double lumSdr = shoulderC1(lum, kSdrShoulderKnee);
+                        double lumSdr = lum;
+                        if (lum > kSdrShoulderKnee) {
+                            const double r = 1.0 - kSdrShoulderKnee;
+                            const double u = lum - kSdrShoulderKnee;
+                            lumSdr = kSdrShoulderKnee +
+                                     r * (1.0 - std::pow(1.0 + u / (kSdrShoulderPower * r), -kSdrShoulderPower));
+                        }
                         const double scale = lumSdr / lum;
                         sdrLin = pullToP3Gamut({hdr[0] * scale, hdr[1] * scale, hdr[2] * scale}, 1.0);
                     }

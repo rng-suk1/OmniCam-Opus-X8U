@@ -278,3 +278,6 @@ chown -R "$APP_UID:$APP_UID" "$CAM_ML"
 find "$CAM_ML" -type f -exec chmod 0644 {} \;
 find "$CAM_ML" -type d -exec chmod 0755 {} \;
 restorecon -R "$CAM_ML"
+
+# 所有 /odm 挂载与配置就绪后重启一次 Camera HAL，避免开机/软重启挂载时序导致多摄 SAT 变焦失效。
+killall vendor.qti.camera.provider-service_64 >/dev/null 2>&1 || true
