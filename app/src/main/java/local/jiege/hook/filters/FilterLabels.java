@@ -30,9 +30,23 @@ public final class FilterLabels {
     }
 
     /** Title for a filter type in a scope, or null to keep the camera's name. */
-    private static String titleFor(FilterScope scope, String type) {
+    public static String titleFor(FilterScope scope, String type) {
+        String renamed = renamedTitle(scope, type);
+        if (renamed != null) return renamed;
         FilterEntry entry = FilterCore.get(scope).find(type);
         return entry == null ? null : entry.title;
+    }
+
+    private static String renamedTitle(FilterScope scope, String type) {
+        if (type == null) return null;
+        MasterConfig config = FilterCore.config();
+        String renamed = config.renameOf(type);
+        if (renamed != null) return renamed;
+        if (scope == FilterScope.NORMAL) {
+            String master = NormalMasterMirror.toMaster(type);
+            if (master != null) return config.renameOf(master);
+        }
+        return null;
     }
 
     private static void hookTitles() {

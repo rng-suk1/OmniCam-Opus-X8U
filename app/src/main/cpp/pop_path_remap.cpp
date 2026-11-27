@@ -25,6 +25,7 @@ static int (*originalOpen)(const char *, int, ...);
 static constexpr char kOdmRetro[] = "/odm/etc/camera/basictone/setting_Retro";
 static constexpr char kAppRetro[] = "/data/user/0/com.oplus.camera/files/pop_port/setting_Retro";
 static constexpr char kOdmLut[] = "/odm/etc/camera/meishe_lut/";
+static constexpr char kOdmFiltersLut[] = "/odm/etc/camera/filters_lut/";
 static constexpr char kAppLut[] = "/data/user/0/com.oplus.camera/files/pop_port/meishe_lut/";
 // Master filters the user imported in the settings app (MasterFilterSync copies them here).
 static constexpr char kImportedLut[] = "/data/user/0/com.oplus.camera/files/jiege/lut/";
@@ -55,12 +56,7 @@ static const char *remap(const char *path, char *buf, size_t n) {
     if (const char *mapped = naturalRemapPath(path, buf, n)) {
         return mapped;
     }
-    if (const char *mapped = face200mRemapPath(path, buf, n)) {
-        return mapped;
-    }
-    if (const char *mapped = unlock25mpRemapPath(path, buf, n)) {
-        return mapped;
-    }
+    // X8U: skip X9U-specific face200m / unlock25mp config remaps.
     if (std::strncmp(path, kOdmRetro, sizeof(kOdmRetro) - 1) == 0) {
         std::snprintf(buf, n, "%s%s", kAppRetro, path + sizeof(kOdmRetro) - 1);
         if (destExists(buf)) {
@@ -76,6 +72,23 @@ static const char *remap(const char *path, char *buf, size_t n) {
         std::snprintf(buf, n, "%s%s", kImportedLut, path + sizeof(kOdmLut) - 1);
         if (destExists(buf)) {
             return buf;
+        }
+    }
+    if (std::strncmp(path, kOdmFiltersLut, sizeof(kOdmFiltersLut) - 1) == 0) {
+        const char *name = path + sizeof(kOdmFiltersLut) - 1;
+        std::snprintf(buf, n, "%s%s", kAppLut, name);
+        if (destExists(buf)) {
+            return buf;
+        }
+        std::snprintf(buf, n, "%s%s", kImportedLut, name);
+        if (destExists(buf)) {
+            return buf;
+        }
+        if (!destExists(path)) {
+            std::snprintf(buf, n, "%s%s", kOdmLut, name);
+            if (destExists(buf)) {
+                return buf;
+            }
         }
     }
     return path;

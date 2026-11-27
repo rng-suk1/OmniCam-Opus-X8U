@@ -189,9 +189,9 @@ void hookAlgoInterface(HookFunction hook, void *handle) {
     Dl_info info{};
     void *lmtAddress = dlsym(handle, lmtSymbol);
     if (!lmtAddress || !dladdr(lmtAddress, &info)) return;
-    // Same setting accessor that getLmtParamsV1 calls at 0x1fd438c.
+    // X8U (PKJ110 17.0.1.201): setting accessor that getLmtParamsV1 calls at 0x1e0c08c.
     getSettingInt = reinterpret_cast<decltype(getSettingInt)>(
-        static_cast<char *>(info.dli_fbase) + 0x15389cc);
+        static_cast<char *>(info.dli_fbase) + 0x1420188);
     hookExport(hook, handle, lmtSymbol, reinterpret_cast<void *>(getLmtParams),
                reinterpret_cast<void **>(&originalGetLmtParams), kTag);
     filterProcessV1 = reinterpret_cast<decltype(filterProcessV1)>(

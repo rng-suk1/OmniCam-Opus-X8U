@@ -1,6 +1,6 @@
-id=ricoh_pop_x9u
-name=OmniCam Opus
-version=Opus 3.0.0
-versionCode=525
-author=local-port
-description=RICOH GR, POP, X10 and master filter features for PMA110, with a settings app.
+id=omnicam_muse_x8u
+name=OmniCam Opus X8U (17.0.1.201)
+version=Opus 3.0.0 X8U
+versionCode=611
+author=粉刷匠
+description=OmniCam Opus 3.0.0 adapted for Find X8 Ultra (PKJ110/PKU110 17.0.1.201).

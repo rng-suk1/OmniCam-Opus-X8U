@@ -171,6 +171,15 @@ final class GalleryPaletteScope {
     private static String masterType(String name) {
         java.util.Set<String> types = GalleryFilters.masterTypes();
         if (name.isEmpty() || types.contains(name)) return null;
+        if ("gr.nega.rgba.bin".equals(name)) {
+            return types.contains("JG_RICOH_NEGATIVE.cube.rgb.bin") ? "JG_RICOH_NEGATIVE.cube.rgb.bin" : "default";
+        }
+        if ("gr.posi.rgba.bin".equals(name)) {
+            return types.contains("JG_RICOH_POSITIVE.cube.rgb.bin") ? "JG_RICOH_POSITIVE.cube.rgb.bin" : "default";
+        }
+        if (name.startsWith("gr.") && name.endsWith(".rgba.bin")) {
+            return "default";
+        }
         String stem = name.endsWith(".bin") ? name.substring(0, name.length() - 4) : name;
         int variant = stem.indexOf("_normal");
         if (variant < 0) variant = stem.indexOf("_sdr");

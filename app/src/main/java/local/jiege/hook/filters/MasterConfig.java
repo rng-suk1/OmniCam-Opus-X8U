@@ -17,6 +17,7 @@ import java.util.Map;
  *   order    <filter id>
  *   visible  <filter id>  <0|1>
  *   import   <filter id>  <title>  <LUT file size>
+ *   rename   <filter id>  <title>
  * Unknown record kinds are ignored, so later versions can add records.
  */
 public final class MasterConfig {
@@ -41,16 +42,38 @@ public final class MasterConfig {
     public final List<String> order;
     public final Map<String, Boolean> visible;
     public final List<Imported> imported;
+    public final Map<String, String> renames;
 
     public MasterConfig(List<String> order, Map<String, Boolean> visible, List<Imported> imported) {
+        this(order, visible, imported, Collections.<String, String>emptyMap());
+    }
+
+    public MasterConfig(List<String> order, Map<String, Boolean> visible, List<Imported> imported, Map<String, String> renames) {
         this.order = Collections.unmodifiableList(new ArrayList<>(order));
         this.visible = Collections.unmodifiableMap(new LinkedHashMap<>(visible));
         this.imported = Collections.unmodifiableList(new ArrayList<>(imported));
+        Map<String, String> cleanRenames = new LinkedHashMap<>();
+        if (renames != null) {
+            for (Map.Entry<String, String> entry : renames.entrySet()) {
+                String id = clean(entry.getKey());
+                String title = clean(entry.getValue());
+                if (!id.isEmpty() && !title.isEmpty()) cleanRenames.put(id, title);
+            }
+        }
+        this.renames = Collections.unmodifiableMap(cleanRenames);
     }
 
     public static MasterConfig empty() {
         return new MasterConfig(Collections.<String>emptyList(), Collections.<String, Boolean>emptyMap(),
-            Collections.<Imported>emptyList());
+            Collections.<Imported>emptyList(), Collections.<String, String>emptyMap());
+    }
+
+    public String renameOf(String id) {
+        return id == null ? null : renames.get(id);
+    }
+
+    public static String cleanTitle(String text) {
+        return clean(text);
     }
 
     public MasterLayout.Saved layout() {
@@ -72,6 +95,9 @@ public final class MasterConfig {
         for (Imported item : imported) {
             out.append("import\t").append(item.id).append('\t').append(item.title).append('\t').append(item.size).append('\n');
         }
+        for (Map.Entry<String, String> entry : renames.entrySet()) {
+            out.append("rename\t").append(clean(entry.getKey())).append('\t').append(clean(entry.getValue())).append('\n');
+        }
         return out.toString();
     }
 
@@ -83,6 +109,7 @@ public final class MasterConfig {
         List<String> order = new ArrayList<>();
         Map<String, Boolean> visible = new LinkedHashMap<>();
         List<Imported> imported = new ArrayList<>();
+        Map<String, String> renames = new LinkedHashMap<>();
         for (int i = 1; i < lines.length; i++) {
             String[] fields = lines[i].replace("\r", "").split("\t", -1);
             try {
@@ -96,6 +123,12 @@ public final class MasterConfig {
                     case "import":
                         if (fields.length >= 4) imported.add(new Imported(fields[1], fields[2], Long.parseLong(fields[3])));
                         break;
+                    case "rename":
+                        if (fields.length >= 3 && !fields[1].isEmpty()) {
+                            String title = clean(fields[2]);
+                            if (!title.isEmpty()) renames.put(fields[1], title);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -103,7 +136,7 @@ public final class MasterConfig {
                 // skip the record
             }
         }
-        return new MasterConfig(order, visible, imported);
+        return new MasterConfig(order, visible, imported, renames);
     }
 
     private static String clean(String text) {

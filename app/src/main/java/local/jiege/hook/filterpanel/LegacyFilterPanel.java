@@ -506,8 +506,8 @@ public final class LegacyFilterPanel {
             Object item = items.get(i);
             if (ownItems.contains(item)) continue;
             String type = (String) XposedHelpers.getObjectField(item, "mType");
-            FilterEntry entry = type == null ? null : FilterCore.get(scope).find(type);
-            String name = entry != null && entry.title != null ? entry.title
+            String renamed = local.jiege.hook.filters.FilterLabels.titleFor(scope, type);
+            String name = renamed != null ? renamed
                 : standard != 0 && noneName != null && noneName.equals(XposedHelpers.getObjectField(item, "mName")) ? resources.getString(standard) : null;
             if (name != null) items.set(i, item(classLoader, type, name));
         }

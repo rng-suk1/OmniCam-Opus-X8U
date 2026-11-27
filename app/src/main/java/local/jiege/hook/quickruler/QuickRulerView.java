@@ -85,11 +85,21 @@ final class QuickRulerView extends View {
     private Mover mover;
     private int zone = NONE;
     private boolean moving;
+    private boolean moved;
+    private boolean draggingRuler;
+    private boolean resetHandled;
+    private float downRawX;
+    private float downRawY;
     private float lastRawX;
     private float lastRawY;
     private final android.view.GestureDetector doubleTap;
     private final Runnable startMoving = () -> {
         moving = true;
+        moved = false;
+        if (active) {
+            value = lastQuantized;
+            setActive(false);
+        }
         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
         invalidate();
     };
@@ -98,6 +108,7 @@ final class QuickRulerView extends View {
     interface Mover {
         void moveBy(float dx, float dy);
         void moveEnd();
+        void flipSide();
     }
 
     QuickRulerView(Context context, Binding binding) {
@@ -109,6 +120,11 @@ final class QuickRulerView extends View {
             }
 
             @Override public boolean onDoubleTap(MotionEvent event) {
+                removeCallbacks(startMoving);
+                resetHandled = true;
+                moving = false;
+                draggingRuler = false;
+                if (active) setActive(false);
                 reset();
                 return true;
             }
@@ -199,70 +215,84 @@ final class QuickRulerView extends View {
             zone = zoneAt(event.getX(), event.getY());
             if (zone == NONE) return false;
             getParent().requestDisallowInterceptTouchEvent(true);
-            if (zone == RULER) {
-                lastY = event.getY();
-                setActive(true);
-            } else if (zone == UNIT) {
-                lastRawX = event.getRawX();
-                lastRawY = event.getRawY();
-                moving = false;
+            downRawX = lastRawX = event.getRawX();
+            downRawY = lastRawY = event.getRawY();
+            lastY = event.getY();
+            moving = false;
+            moved = false;
+            draggingRuler = false;
+            resetHandled = false;
+            doubleTap.onTouchEvent(event);
+            if (!resetHandled) {
                 postDelayed(startMoving, MOVE_HOLD_MS);
-            } else {
-                doubleTap.onTouchEvent(event);
+                if (zone == RULER) setActive(true);
             }
             return true;
         }
-        if (zone == VALUE) {
-            doubleTap.onTouchEvent(event);
-            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) zone = NONE;
-            return true;
-        }
-        if (zone == UNIT) {
-            if (action == MotionEvent.ACTION_MOVE) {
-                if (moving) {
-                    float dx = event.getRawX() - lastRawX;
-                    float dy = event.getRawY() - lastRawY;
-                    lastRawX = event.getRawX();
-                    lastRawY = event.getRawY();
-                    if (mover != null) mover.moveBy(dx, dy);
-                } else if (Math.hypot(event.getRawX() - lastRawX, event.getRawY() - lastRawY) > 8 * density) {
-                    removeCallbacks(startMoving);
-                }
-            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-                removeCallbacks(startMoving);
-                if (moving) {
-                    moving = false;
-                    if (mover != null) mover.moveEnd();
-                    invalidate();
-                }
+        if (zone == NONE) return false;
+        if (!moving && !draggingRuler) doubleTap.onTouchEvent(event);
+        if (resetHandled) {
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                resetHandled = false;
                 zone = NONE;
             }
             return true;
         }
-        if (zone != RULER) return false;
+        if (moving) {
+            if (action == MotionEvent.ACTION_MOVE) {
+                float dx = event.getRawX() - lastRawX;
+                float dy = event.getRawY() - lastRawY;
+                lastRawX = event.getRawX();
+                lastRawY = event.getRawY();
+                if (!moved && Math.hypot(event.getRawX() - downRawX, event.getRawY() - downRawY) > 8 * density) {
+                    moved = true;
+                }
+                if (moved && mover != null) mover.moveBy(dx, dy);
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                moving = false;
+                if (mover != null) {
+                    if (moved) mover.moveEnd();
+                    else mover.flipSide();
+                }
+                moved = false;
+                zone = NONE;
+                invalidate();
+            }
+            return true;
+        }
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                if (!active) return false;
-                float dy = event.getY() - lastY;
-                lastY = event.getY();
-                value = clamp(value + dy / spacing() * binding.step());
-                float quantized = quantize(value);
-                if (quantized != lastQuantized) {
-                    lastQuantized = quantized;
-                    binding.write(quantized);
-                    performHapticFeedback(quantized == binding.home() ? HapticFeedbackConstants.CONFIRM : HapticFeedbackConstants.CLOCK_TICK);
+                if (Math.hypot(event.getRawX() - downRawX, event.getRawY() - downRawY) > 8 * density) {
+                    removeCallbacks(startMoving);
+                    if (zone == RULER) draggingRuler = true;
                 }
-                invalidate();
+                if (zone == RULER && active && draggingRuler) {
+                    float dy = event.getY() - lastY;
+                    lastY = event.getY();
+                    value = clamp(value + dy / spacing() * binding.step());
+                    float quantized = quantize(value);
+                    if (quantized != lastQuantized) {
+                        lastQuantized = quantized;
+                        binding.write(quantized);
+                        performHapticFeedback(quantized == binding.home() ? HapticFeedbackConstants.CONFIRM : HapticFeedbackConstants.CLOCK_TICK);
+                    }
+                    invalidate();
+                } else if (zone == RULER) {
+                    lastY = event.getY();
+                }
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (!active) return false;
-                value = lastQuantized;
-                setActive(false);
+                removeCallbacks(startMoving);
+                if (active) {
+                    value = lastQuantized;
+                    setActive(false);
+                }
+                draggingRuler = false;
                 zone = NONE;
                 return true;
             default:
-                return active;
+                return true;
         }
     }
 

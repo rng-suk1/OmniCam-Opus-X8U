@@ -148,7 +148,6 @@ public final class ModuleEntry implements IXposedHookLoadPackage, IXposedHookZyg
             HighPixelEffects.installCamera(classLoader);
             TiltShiftCapture.installCamera(classLoader);
             SeamlessBlurGuard.installCamera(classLoader);
-            KeyLaunchMode.installCamera(classLoader);
             Log.guard("CameraLog", "camera log mirror", () -> CameraLogMirror.install(classLoader));
             MasterFilterCompletion.installCamera(classLoader);
             LegacyFilterPanel.installCamera(classLoader);
@@ -161,11 +160,8 @@ public final class ModuleEntry implements IXposedHookLoadPackage, IXposedHookZyg
             ModeStateSplit.installCamera(classLoader);
             ProParamsSplit.installCamera(classLoader);
             VideoFilterHighSpec.installCamera(classLoader);
-            OpenGateFps.installCamera(classLoader);
-            OpenGateLenses.installCamera(classLoader);
             NaturalMode.installCamera(classLoader);
             Unlock25mp.installCamera(classLoader);
-            HighPixel200mFace.installCamera(classLoader);
             ModelSpoof.installCamera(classLoader);
             XpanLivePhoto.installCamera(classLoader);
             XpanViewfinderClean.installCamera(classLoader);

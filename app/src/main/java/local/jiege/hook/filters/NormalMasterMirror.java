@@ -20,12 +20,14 @@ import java.util.Map;
  *     user hid in the master list, follow the ordered ones in their own order.
  * Off by default (FilterCore.configure); applies when the camera starts.
  */
-final class NormalMasterMirror {
+public final class NormalMasterMirror {
     /** The groups that follow the master list: photo (also used by 哈苏超清) and portrait. */
     private static final List<String> GROUPS = java.util.Arrays.asList("sFilterGroup", "sPortraitFilterGroup");
 
     /** Master stock filter type -> the normal mode's type for the same filter (different asset). */
     private static final Map<String, String> NORMAL_TYPE = new HashMap<>();
+    /** Normal stock filter type -> the master mode's type for the same filter. */
+    private static final Map<String, String> MASTER_TYPE = new HashMap<>();
 
     static {
         NORMAL_TYPE.put("portra400_master.bin", "portra400_normal.bin");
@@ -35,9 +37,23 @@ final class NormalMasterMirror {
         NORMAL_TYPE.put("fuji-proNegHi_master.bin", "fuji-proNegHi.bin");
         NORMAL_TYPE.put("800t_master.bin", "800t.bin");
         NORMAL_TYPE.put("blackandwhite_HC_master.bin", "blackandwhite_HC_normal.bin");
+        for (Map.Entry<String, String> entry : NORMAL_TYPE.entrySet()) {
+            MASTER_TYPE.put(entry.getValue(), entry.getKey());
+        }
     }
 
     private NormalMasterMirror() {}
+
+    /** Maps a master filter type to the corresponding normal-mode type, or returns it unchanged. */
+    public static String toNormal(String masterType) {
+        String normal = NORMAL_TYPE.get(masterType);
+        return normal == null ? masterType : normal;
+    }
+
+    /** Maps a normal-mode filter type to the corresponding master type, or null if none. */
+    public static String toMaster(String normalType) {
+        return MASTER_TYPE.get(normalType);
+    }
 
     /**
      * The master entries the normal catalog takes over: shown in the master list (per the user's

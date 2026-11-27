@@ -383,7 +383,17 @@ public final class QuickRuler {
         /** Lets go: the ruler goes to the nearer lane with a snapping animation, and the place is kept. */
         @Override public void moveEnd() {
             float centerNow = naturalLeft() + ruler.columnCenterX();
-            boolean toLeft = centerNow < naturalWidth() / 2f;
+            snapToSide(centerNow < naturalWidth() / 2f);
+        }
+
+        /** Long-press without dragging: flips the ruler to the opposite edge lane. */
+        @Override public void flipSide() {
+            snapToSide(!left());
+        }
+
+        private void snapToSide(boolean toLeft) {
+            if (entry == null) return;
+            float centerNow = naturalLeft() + ruler.columnCenterX();
             if (landscape()) landscapeLeft = toLeft;
             else portraitLeft = toLeft;
             dragX = centerNow - laneCenter(toLeft);
@@ -393,6 +403,7 @@ public final class QuickRuler {
             snap.setInterpolator(new OvershootInterpolator(1.1f));
             snap.addUpdateListener(animation -> {
                 dragX = (Float) animation.getAnimatedValue();
+                place();
                 ruler.invalidate();
             });
             snap.start();

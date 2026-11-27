@@ -58,6 +58,8 @@ public final class MasterFilterStore {
         public final String id;
         public final String category;
         public final String title;
+        public final String defaultTitle;
+        public final boolean renamed;
         public final boolean visible;
         /** 标准 cannot be hidden. */
         public final boolean fixed;
@@ -65,10 +67,13 @@ public final class MasterFilterStore {
         /** A custom preset (custom_N) saved in the camera; category names the filter it uses. */
         public final boolean preset;
 
-        Row(String id, String category, String title, boolean visible, boolean fixed, boolean imported, boolean preset) {
+        Row(String id, String category, String title, String defaultTitle, boolean renamed,
+            boolean visible, boolean fixed, boolean imported, boolean preset) {
             this.id = id;
             this.category = category;
             this.title = title;
+            this.defaultTitle = defaultTitle;
+            this.renamed = renamed;
             this.visible = visible;
             this.fixed = fixed;
             this.imported = imported;
@@ -118,7 +123,9 @@ public final class MasterFilterStore {
         for (String id : config.order) if (!isPreset(id) || presets.contains(id)) order.add(id);
         Map<String, Boolean> visible = new LinkedHashMap<>();
         for (Map.Entry<String, Boolean> e : config.visible.entrySet()) if (!isPreset(e.getKey()) || presets.contains(e.getKey())) visible.put(e.getKey(), e.getValue());
-        if (order.size() != config.order.size() || visible.size() != config.visible.size()) save(new MasterConfig(order, visible, config.imported));
+        if (order.size() != config.order.size() || visible.size() != config.visible.size()) {
+            save(new MasterConfig(order, visible, config.imported, config.renames));
+        }
     }
 
     public static boolean isPreset(String id) {
@@ -168,20 +175,26 @@ public final class MasterFilterStore {
             if (isPreset(id)) {
                 String type = presetTypes.get(id);
                 FilterEntry used = catalog.find(type);
-                String lut = used != null && used.title != null ? used.title
+                String lut = config.renameOf(type) != null ? config.renameOf(type)
+                    : used != null && used.title != null ? used.title
                     : cameraNames.containsKey(type) ? cameraNames.get(type)
                     : CAMERA_NAMES.containsKey(type) ? CAMERA_NAMES.get(type) : "标准";
-                rows.add(new Row(id, "我的预设 · " + lut, cameraNames.containsKey(id) ? cameraNames.get(id) : id,
+                String presetTitle = cameraNames.containsKey(id) ? cameraNames.get(id) : id;
+                rows.add(new Row(id, "我的预设 · " + lut, presetTitle, presetTitle, false,
                     MasterLayout.isVisible(id, (FilterEntry) null, config.layout()), false, false, true));
                 continue;
             }
             FilterEntry entry = catalog.find(id);
             String category = entry == null ? FilterEntry.Category.PRESET.displayName : entry.category.displayName;
-            String title = entry != null && entry.title != null ? entry.title
+            String defaultTitle = entry != null && entry.title != null ? entry.title
                 : cameraNames.containsKey(id) ? cameraNames.get(id)
                 : CAMERA_NAMES.containsKey(id) ? CAMERA_NAMES.get(id) : id;
-            rows.add(new Row(id, category, title, MasterLayout.isVisible(id, catalog, config.layout()),
-                MasterLayout.STANDARD.equals(id), entry != null && entry.source == FilterEntry.Source.IMPORTED, false));
+            boolean imported = entry != null && entry.source == FilterEntry.Source.IMPORTED;
+            String customName = imported ? null : config.renameOf(id);
+            boolean renamed = customName != null && !customName.isEmpty() && !customName.equals(defaultTitle);
+            String title = renamed ? customName : defaultTitle;
+            rows.add(new Row(id, category, title, defaultTitle, renamed, MasterLayout.isVisible(id, catalog, config.layout()),
+                MasterLayout.STANDARD.equals(id), imported, false));
         }
         return rows;
     }
@@ -193,13 +206,13 @@ public final class MasterFilterStore {
         List<String> order = ids(rows);
         order.add(to, order.remove(from));
         MasterConfig config = config();
-        save(new MasterConfig(order, config.visible, config.imported));
+        save(new MasterConfig(order, config.visible, config.imported, config.renames));
     }
 
     /** Drops the saved order: filters return to the camera's order, custom presets to its head. */
     public synchronized void resetOrder() throws IOException {
         MasterConfig config = config();
-        save(new MasterConfig(new ArrayList<>(), config.visible, config.imported));
+        save(new MasterConfig(new ArrayList<>(), config.visible, config.imported, config.renames));
     }
 
     public synchronized void setVisible(String id, boolean visible) throws IOException {
@@ -207,10 +220,10 @@ public final class MasterFilterStore {
         MasterConfig config = config();
         Map<String, Boolean> map = new LinkedHashMap<>(config.visible);
         map.put(id, visible);
-        save(new MasterConfig(config.order, map, config.imported));
+        save(new MasterConfig(config.order, map, config.imported, config.renames));
     }
 
-    // ---- import / delete ------------------------------------------------------------------------
+    // ---- import / rename / delete ---------------------------------------------------------------
 
     /** Converts a Rec.709 .cube and adds it as an imported filter; returns its ID. */
     public synchronized String importCube(String fileName, InputStream cube, byte[] header) throws IOException {
@@ -223,8 +236,29 @@ public final class MasterFilterStore {
         MasterConfig config = config();
         List<MasterConfig.Imported> imported = new ArrayList<>(config.imported);
         imported.add(new MasterConfig.Imported(id, titleOf(fileName), lut.length));
-        save(new MasterConfig(config.order, config.visible, imported));
+        save(new MasterConfig(config.order, config.visible, imported, config.renames));
         return id;
+    }
+
+    /**
+     * Renames any filter (imported or built-in). For built-in filters, an empty newTitle removes
+     * the override and restores the default name.
+     */
+    public synchronized void rename(String id, String newTitle) throws IOException {
+        if (id == null || id.isEmpty() || isPreset(id)) throw new IllegalArgumentException("不支持重命名该项: " + id);
+        if (MasterConfig.isImportId(id)) {
+            renameImported(id, newTitle);
+            return;
+        }
+        String cleaned = MasterConfig.cleanTitle(newTitle);
+        MasterConfig config = config();
+        Map<String, String> renames = new LinkedHashMap<>(config.renames);
+        if (cleaned.isEmpty()) {
+            renames.remove(id);
+        } else {
+            renames.put(id, cleaned);
+        }
+        save(new MasterConfig(config.order, config.visible, config.imported, renames));
     }
 
     /** Renames an imported filter in place, keeping its ID, LUT file, order and visibility. */
@@ -244,7 +278,7 @@ public final class MasterFilterStore {
             }
         }
         if (!found) throw new IllegalArgumentException("未找到该导入滤镜");
-        save(new MasterConfig(config.order, config.visible, imported));
+        save(new MasterConfig(config.order, config.visible, imported, config.renames));
     }
 
     public synchronized void deleteImported(String id) throws IOException {
@@ -255,7 +289,9 @@ public final class MasterFilterStore {
         order.remove(id);
         Map<String, Boolean> visible = new LinkedHashMap<>(config.visible);
         visible.remove(id);
-        save(new MasterConfig(order, visible, imported));
+        Map<String, String> renames = new LinkedHashMap<>(config.renames);
+        renames.remove(id);
+        save(new MasterConfig(order, visible, imported, renames));
         lutFile(id).delete();
     }
 

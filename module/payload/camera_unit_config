@@ -53,8 +53,6 @@
       "movie_mode",
       "slowvideo_mode",
       "photo_mode",
-      "telephoto_video_mode",
-      "telephoto_capture_mode",
       "gr_mode",
       "retro_camera_mode",
       "tilt_shift_mode"
@@ -82,7 +80,8 @@
       "id_photo_mode",
       "night_mode",
       "panorama_mode",
-      "retro_camera_mode"
+      "retro_camera_mode",
+      "tilt_shift_mode"
     ],
     "rear_sat": [
       "video_mode",
@@ -120,25 +119,9 @@
       "resolution": {
         "8k": "80A9"
       },
-      "blur_video": {
-        "4k": "80B3",
-        "1080p": "80B3",
-        "720p": "80B3"
-      },
       "fps": {
         "video_60fps": "8021",
         "video_120fps": "1"
-      },
-      "fovc": {
-        "on": "0300"
-      }
-    },
-    "telephoto_video_mode": {
-      "stabilization": {
-        "super_stabilization": "80b7"
-      },
-      "fps": {
-        "video_60fps": "80b6"
       },
       "fovc": {
         "on": "0300"
@@ -203,7 +186,6 @@
     "night_mode": "8019",
     "panorama_mode": "8007",
     "professional_mode": "8009",
-    "gr_mode": "8009",
     "sticker_mode": "800E",
     "fastvideo_mode": "800C",
     "slowvideo_mode": "1",
@@ -211,8 +193,6 @@
     "multi_camera_mode": "802C",
     "microscope_capture_mode": "8001",
     "microscope_video_mode": "800b",
-    "telephoto_capture_mode": "80b4",
-    "telephoto_video_mode": "80b5",
     "macro_mode": "80A6",
     "movie_mode": "80A3",
     "xpan_mode": "80AC",
@@ -220,6 +200,7 @@
     "high_pixel_mode": "8001",
     "tilt_shift_mode": "8001",
     "under_water_mode": "80AD",
+    "gr_mode": "8009",
     "retro_camera_mode": "8001"
   },
   "usecase_info": {
@@ -231,16 +212,10 @@
         "preview": "rear_sat"
       },
       {
-        "raw_output": "rear_main"
+        "raw16_output": "rear_sat"
       },
       {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
+        "raw_output": "rear_sat"
       },
       {
         "capture_yuv": "rear_main"
@@ -258,81 +233,13 @@
         "preview_in_preview": "rear_sat"
       },
       {
-        "capture_raw10_dol": "rear_main"
+        "capture_raw10_dol": "rear_sat"
       },
       {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
+        "capture_raw10_fullsize": "rear_sat"
       },
       {
         "raw10_high_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
-      }
-    ],
-    "sat_photo_none_yuv_case": [
-      {
-        "capture_meta": "rear_sat"
-      },
-      {
-        "preview": "rear_sat"
-      },
-      {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
-      },
-      {
-        "preview_in_preview": "rear_sat"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
-      },
-      {
-        "raw10_high_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
       }
     ],
     "sat_photo_full_size_case": [
@@ -343,16 +250,10 @@
         "preview": "rear_sat"
       },
       {
-        "raw_output": "rear_main"
+        "raw16_output": "rear_sat"
       },
       {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
+        "raw_output": "rear_sat"
       },
       {
         "capture_yuv": "rear_main"
@@ -370,93 +271,13 @@
         "preview_in_preview": "rear_sat"
       },
       {
-        "capture_raw10_dol": "rear_main"
+        "capture_raw10_dol": "rear_sat"
       },
       {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_wide"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
-      },
-      {
-        "capture_raw10_fullsize": "rear_ultra_tele"
+        "capture_raw10_fullsize": "rear_sat"
       },
       {
         "raw10_high_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
-      }
-    ],
-    "sat_photo_none_yuv_full_size_case": [
-      {
-        "capture_meta": "rear_sat"
-      },
-      {
-        "preview": "rear_sat"
-      },
-      {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
-      },
-      {
-        "preview_in_preview": "rear_sat"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_wide"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
-      },
-      {
-        "capture_raw10_fullsize": "rear_ultra_tele"
-      },
-      {
-        "raw10_high_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
       }
     ],
     "sat_photo_debug_3a_sync_case": [
@@ -467,16 +288,10 @@
         "preview": "rear_sat"
       },
       {
-        "raw_output": "rear_main"
+        "raw16_output": "rear_sat"
       },
       {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
+        "raw_output": "rear_sat"
       },
       {
         "capture_yuv": "rear_main"
@@ -494,19 +309,7 @@
         "preview_in_preview": "rear_sat"
       },
       {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
+        "capture_raw10_dol": "rear_sat"
       },
       {
         "raw16_debug_3a_sync": "rear_main"
@@ -517,49 +320,28 @@
         "preview": "rear_sat"
       },
       {
-        "raw_output": "rear_main"
+        "raw16_output": "rear_sat"
       },
       {
-        "raw_output": "rear_wide"
+        "raw_output": "rear_sat"
       },
       {
-        "raw_output": "rear_tele"
+        "capture_yuv": "rear_main"
       },
       {
-        "raw_output": "rear_ultra_tele"
+        "capture_yuv": "rear_wide"
       },
       {
-        "capture_raw10_dol": "rear_main"
+        "capture_yuv": "rear_tele"
       },
       {
-        "capture_raw10_dol": "rear_wide"
+        "capture_yuv": "rear_ultra_tele"
       },
       {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_wide"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
-      },
-      {
-        "capture_raw10_fullsize": "rear_ultra_tele"
+        "capture_raw10_dol": "rear_sat"
       },
       {
         "preview_in_preview": "rear_sat"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
       }
     ],
     "under_water_picture_case": [
@@ -580,9 +362,6 @@
       },
       {
         "capture_raw10_dol": "var_camera"
-      },
-      {
-        "capture_raw10_3dol": "var_camera"
       }
     ],
     "under_water_video_case": [
@@ -591,9 +370,6 @@
       },
       {
         "video_recorder": "var_camera"
-      },
-      {
-        "capture_yuv": "var_camera"
       }
     ],
     "rear_dual_sat_night_case": [
@@ -655,27 +431,7 @@
         "preview": "rear_wide"
       },
       {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
-      }
-    ],
-    "portrait_bokeh_3dol_case": [
-      {
-        "capture_meta": "rear_main"
-      },
-      {
-        "preview": "rear_main"
-      },
-      {
-        "preview": "rear_wide"
+        "raw16_output": "rear_main"
       },
       {
         "raw_output": "rear_main"
@@ -685,12 +441,6 @@
       },
       {
         "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "capture_raw16_cs": "rear_sat"
       }
     ],
     "portrait_bokeh_fallback_case": [
@@ -738,6 +488,12 @@
         "preview": "rear_wide"
       },
       {
+        "raw16_output": "rear_main"
+      },
+      {
+        "raw16_output": "rear_wide"
+      },
+      {
         "raw_output": "rear_main"
       },
       {
@@ -771,9 +527,6 @@
       },
       {
         "capture_yuv_mfnr": "var_camera"
-      },
-      {
-        "capture_raw10_dol": "front_main"
       }
     ],
     "single_photo_case": [
@@ -782,43 +535,6 @@
       },
       {
         "capture": "var_camera"
-      }
-    ],
-    "telephoto_capture_case": [
-      {
-        "preview": "rear_tele"
-      },
-      {
-        "raw_output": "var_camera"
-      },
-      {
-        "capture_yuv": "var_camera"
-      },
-      {
-        "capture_raw10_dol": "var_camera"
-      },
-      {
-        "preview_in_preview": "var_camera"
-      },
-      {
-        "raw10_high_output": "var_camera"
-      }
-    ],
-    "telephoto_video_case": [
-      {
-        "preview": "var_camera"
-      },
-      {
-        "capture": "var_camera"
-      },
-      {
-        "video_recorder": "var_camera"
-      },
-      {
-        "preview_in_preview": "var_camera"
-      },
-      {
-        "preview_frame": "var_camera"
       }
     ],
     "mfnr_photo_case": [
@@ -935,22 +651,6 @@
         "preview_frame": "var_camera"
       }
     ],
-    "preset_video_frame_snapshot_hires_case": [
-      {
-        "preview": "var_camera"
-      },
-      {
-        "preview_high_res": "var_camera"
-      }
-    ],
-    "video_frame_snapshot_hires_case": [
-      {
-        "preview": "var_camera"
-      },
-      {
-        "preview_high_res": "var_camera"
-      }
-    ],
     "eis_pro_case": [
       {
         "preview": "var_camera"
@@ -1057,9 +757,6 @@
       },
       {
         "capture": "var_camera"
-      },
-      {
-        "raw_output": "var_camera"
       }
     ],
     "macro_capture_case": [
@@ -1077,9 +774,6 @@
       },
       {
         "capture_raw10_dol": "var_camera"
-      },
-      {
-        "capture_raw10_3dol": "var_camera"
       }
     ],
     "professional_case": [
@@ -1090,31 +784,22 @@
         "preview": "var_camera"
       },
       {
-        "raw_output": "rear_main"
+        "raw_output": "rear_sat"
       },
       {
-        "raw_output": "rear_wide"
+        "capture_yuv": "rear_main"
       },
       {
-        "raw_output": "rear_tele"
+        "capture_yuv": "rear_wide"
       },
       {
-        "raw_output": "rear_ultra_tele"
+        "capture_yuv": "rear_tele"
       },
       {
-        "capture_raw10_dol": "rear_main"
+        "capture_yuv": "rear_ultra_tele"
       },
       {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
+        "capture_raw10_dol": "rear_sat"
       },
       {
         "preview_in_preview": "rear_sat"
@@ -1140,119 +825,7 @@
         "capture_raw10_fullsize": "rear_ultra_tele"
       },
       {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "preview_in_preview": "rear_sat"
-      }
-    ],
-    "gr_mode_case": [
-      {
-        "capture_meta": "var_camera"
-      },
-      {
-        "preview": "var_camera"
-      },
-      {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
-      },
-      {
-        "preview_in_preview": "rear_sat"
-      }
-    ],
-    "gr_mode_hq_raw_case": [
-      {
-        "capture_meta": "var_camera"
-      },
-      {
-        "preview": "rear_sat"
-      },
-      {
-        "capture_raw10_fullsize": "rear_main"
-      },
-      {
-        "capture_raw10_fullsize": "rear_wide"
-      },
-      {
-        "capture_raw10_fullsize": "rear_tele"
-      },
-      {
-        "capture_raw10_fullsize": "rear_ultra_tele"
-      },
-      {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
+        "raw_output": "rear_sat"
       },
       {
         "preview_in_preview": "rear_sat"
@@ -1267,12 +840,6 @@
       },
       {
         "raw_output": "var_camera"
-      },
-      {
-        "capture_raw10_dol": "var_camera"
-      },
-      {
-        "capture_raw10_3dol": "var_camera"
       }
     ],
     "front_night_case": [
@@ -1307,9 +874,6 @@
       },
       {
         "capture_yuv_mfnr": "front_main"
-      },
-      {
-        "capture_raw10_dol": "front_main"
       }
     ],
     "panorama_case": [
@@ -1358,80 +922,47 @@
         "preview": "var_camera"
       },
       {
-        "capture_raw10_size_200m": "var_camera"
-      },
-      {
         "capture_raw10_fullsize": "var_camera"
       },
       {
         "raw_output": "var_camera"
-      },
-      {
-        "capture_raw10_dol": "var_camera"
-      },
-      {
-        "capture_raw10_3dol": "var_camera"
-      },
-      {
-        "capture_raw16_cs": "var_camera"
       }
     ],
-    "front_high_pixel_case": [
+    "gr_mode_case": [
       {
-        "preview": "front_main"
+        "capture_meta": "var_camera"
       },
       {
-        "capture_raw10_fullsize": "front_main"
+        "preview": "var_camera"
       },
       {
-        "raw_output": "front_main"
+        "raw_output": "rear_sat"
       },
       {
-        "capture_yuv": "front_main"
+        "capture_yuv": "rear_main"
       },
       {
-        "capture_yuv_mfnr": "front_main"
+        "capture_yuv": "rear_wide"
       },
       {
-        "capture_raw10_dol": "front_main"
-      }
-    ],
-    "retro_camera_case": [
-      {
-        "capture_meta": "rear_sat"
+        "capture_yuv": "rear_tele"
       },
       {
-        "preview": "rear_sat"
+        "capture_yuv": "rear_ultra_tele"
       },
       {
-        "raw_output": "rear_main"
-      },
-      {
-        "raw_output": "rear_wide"
-      },
-      {
-        "raw_output": "rear_tele"
-      },
-      {
-        "raw_output": "rear_ultra_tele"
+        "capture_raw10_dol": "rear_sat"
       },
       {
         "preview_in_preview": "rear_sat"
+      }
+    ],
+    "gr_mode_hq_raw_case": [
+      {
+        "capture_meta": "var_camera"
       },
       {
-        "capture_raw10_dol": "rear_main"
-      },
-      {
-        "capture_raw10_dol": "rear_wide"
-      },
-      {
-        "capture_raw10_dol": "rear_tele"
-      },
-      {
-        "capture_raw10_dol": "rear_ultra_tele"
-      },
-      {
-        "capture_raw10_3dol": "rear_main"
+        "preview": "rear_sat"
       },
       {
         "capture_raw10_fullsize": "rear_main"
@@ -1446,10 +977,48 @@
         "capture_raw10_fullsize": "rear_ultra_tele"
       },
       {
-        "raw10_high_output": "rear_ultra_tele"
+        "raw_output": "rear_sat"
       },
       {
-        "capture_raw16_cs": "rear_sat"
+        "preview_in_preview": "rear_sat"
+      }
+    ],
+    "retro_camera_case": [
+      {
+        "capture_meta": "rear_sat"
+      },
+      {
+        "preview": "rear_sat"
+      },
+      {
+        "raw16_output": "rear_sat"
+      },
+      {
+        "raw_output": "rear_sat"
+      },
+      {
+        "capture_yuv": "rear_main"
+      },
+      {
+        "capture_yuv": "rear_wide"
+      },
+      {
+        "capture_yuv": "rear_tele"
+      },
+      {
+        "capture_yuv": "rear_ultra_tele"
+      },
+      {
+        "preview_in_preview": "rear_sat"
+      },
+      {
+        "capture_raw10_dol": "rear_sat"
+      },
+      {
+        "capture_raw10_fullsize": "rear_sat"
+      },
+      {
+        "raw10_high_output": "rear_ultra_tele"
       }
     ]
   },
@@ -1492,12 +1061,12 @@
   },
   "mode_type_feature_support_capture_meta_size": {
     "photo_mode": {
-      "rear_sat": "1920X1440",
-      "front_main": "1440X1080"
+      "rear_sat": "1280X720",
+      "front_main": "1280X720"
     },
     "portrait_mode": {
-      "rear_sat": "2560X1440",
-      "front_main": "1440X1080"
+      "rear_sat": "1920X1440",
+      "front_main": "1280X720"
     }
   },
   "support_default_video_sizes": [
@@ -1760,11 +1329,6 @@
       "String",
       "3"
     ],
-    "com.oplus.config.video.blur_video": [
-      "blur_video",
-      "String",
-      "3"
-    ],
     "com.oplus.configure.video.fovc": [
       "fovc",
       "String",
@@ -1853,10 +1417,10 @@
   },
   "vendor_tag_type_values": {
     "com.oplus.authed.white.list": "com.ss.android.ugc.aweme, com.finshell.wallet",
+    "com.oplus.sat.wide.support.imagesizes": "4096x3072x4096x2304x4096x1864x4096x1512x3072x3072",
     "com.oplus.sat.ultra.support.imagesizes": "4096x3072x4096x2304x4096x1864x4096x1512x3072x3072",
-    "com.oplus.sat.wide.support.imagesizes": "4080x3064x4080x2296x4080x1856x4080x1508x3064x3064",
     "com.oplus.sat.tele.support.imagesizes": "4096x3072x4096x2304x4096x1864x4096x1512x3072x3072",
-    "com.oplus.front.common.high.mfnr.picturesize": "4096x3072x4096x2304x4096x1864x4096x1512x3072x3072",
+    "com.oplus.front.common.high.mfnr.picturesize": "3280x2464x3280x1848x3280x1470x2464x2464",
     "com.oplus.flash.wide.tel.support": "1",
     "com.oplus.sat.need.set.zoomratio": "1",
     "com.oplus.rear.portrait.sat.fullbodysize": "4096x3072x4096x3072x4096x3072x4096x3072",
@@ -1873,212 +1437,123 @@
   "capture_stream_number": {
     "photo_mode": {
       "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "front_main": {
         "2dol": "2"
-      }
-    },
-    "tilt_shift_mode": {
-      "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
       },
       "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "front_main": {
         "2dol": "2"
       }
     },
     "night_mode": {
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "front_main": {
-        "2dol": "2"
-      }
-    },
-    "telephoto_capture_mode": {
-      "rear_tele": {
         "2dol": "2"
       }
     },
     "under_water_mode": {
       "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       }
     },
     "portrait_mode": {
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "front_main": {
         "2dol": "2"
       }
     },
     "professional_mode": {
       "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      }
-    },
-    "gr_mode": {
-      "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      }
-    },
-    "high_pixel_mode": {
-      "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "front_main": {
         "2dol": "2"
       }
     },
     "super_text_mode": {
-      "rear_wide": {
-        "2dol": "2"
-      },
-      "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_tele": {
-        "2dol": "2"
-      },
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
-      },
-      "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       }
     },
     "xpan_mode": {
       "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
+      }
+    },
+    "gr_mode": {
+      "rear_wide": {
+        "2dol": "2"
+      },
+      "rear_main": {
+        "2dol": "2"
+      },
+      "rear_tele": {
+        "2dol": "2"
+      },
+      "rear_ultra_tele": {
+        "2dol": "2"
+      },
+      "rear_sat": {
+        "2dol": "2"
       }
     },
     "retro_camera_mode": {
       "rear_wide": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_main": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_ultra_tele": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
       },
       "rear_sat": {
-        "2dol": "2",
-        "3dol": "3"
+        "2dol": "2"
+      }
+    },
+    "tilt_shift_mode": {
+      "rear_wide": {
+        "2dol": "2"
       },
-      "front_main": {
+      "rear_main": {
+        "2dol": "2"
+      },
+      "rear_tele": {
+        "2dol": "2"
+      },
+      "rear_ultra_tele": {
+        "2dol": "2"
+      },
+      "rear_sat": {
         "2dol": "2"
       }
     }

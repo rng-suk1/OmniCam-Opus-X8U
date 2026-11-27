@@ -685,7 +685,10 @@ bool bake(const Key &key, std::vector<float> &lut, int threads, const std::vecto
         if (coupled) return decode(d, key, nullptr, {r / double(n - 1), g / double(n - 1), b / double(n - 1)});
         return {axis[r][0], axis[g][1], axis[b][2]};
     };
-    const bool directHdr = (key.path == Path::Main || key.path == Path::Thumbnail) && !key.blended();
+    // X8U: onLibraryLoadedForCaptureDump (and thus hncs_hdrt::afterMasterTransform) is disabled,
+    // so directHdr must stay off; otherwise HNCS Main/Thumbnail LUTs output HLG scaled by 1/kHncsHdrPeak
+    // which stock HDRTransform renders severely underexposed compared to Preview.
+    const bool directHdr = false;
     auto nodeOutput = [&](int r, int g, int b, int &hint, float out[3]) {
         Vec3 scene = frontStage(front, lattice(r, g, b));
         if (directHdr && renderer->renderHdr(scene, out)) return;

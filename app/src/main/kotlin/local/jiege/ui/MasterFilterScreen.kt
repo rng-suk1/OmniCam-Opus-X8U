@@ -12,6 +12,7 @@ import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.delay
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -336,6 +339,42 @@ internal fun MasterFilterScreen(
     var draggingId by remember { mutableStateOf<String?>(null) }
     var dragStart by remember { mutableIntStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
+
+    val density = LocalDensity.current
+    LaunchedEffect(draggingId) {
+        val activeId = draggingId ?: return@LaunchedEffect
+        val edgePx = with(density) { 88.dp.toPx() }
+        val maxStepPx = with(density) { 14.dp.toPx() }
+        while (draggingId == activeId) {
+            val info = listState.layoutInfo
+            val current = info.visibleItemsInfo.firstOrNull { it.key == activeId }
+            val draggedRow = rows.firstOrNull { it.id == activeId }
+            if (current != null && draggedRow != null) {
+                val topEdge = current.offset + dragOffset
+                val bottomEdge = current.offset + current.size + dragOffset
+                val topZone = info.viewportStartOffset + edgePx
+                val bottomZone = info.viewportEndOffset - edgePx
+                val scrollStep = when {
+                    topEdge < topZone -> {
+                        val ratio = ((topZone - topEdge) / edgePx).coerceIn(0.15f, 1.5f)
+                        -maxStepPx * ratio
+                    }
+                    bottomEdge > bottomZone -> {
+                        val ratio = ((bottomEdge - bottomZone) / edgePx).coerceIn(0.15f, 1.5f)
+                        maxStepPx * ratio
+                    }
+                    else -> 0f
+                }
+                if (scrollStep != 0f) {
+                    val consumed = listState.scrollBy(scrollStep)
+                    if (consumed != 0f) {
+                        dragOffset -= swapUnderDrag(listState, rows, draggedRow, dragOffset)
+                    }
+                }
+            }
+            delay(16L)
+        }
+    }
 
     val shown = rows.filter { it.visible }
     val hidden = rows.filter { !it.visible }
@@ -638,13 +677,13 @@ internal fun MasterFilterScreen(
             val maxLen = 32
             val sanitized = renameValue.text.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ').trim()
             val tooLong = renameValue.text.length > maxLen
-            val canSave = sanitized.isNotEmpty() && !tooLong
+            val canSave = if (row.imported) sanitized.isNotEmpty() && !tooLong else !tooLong
             InputDialog(
                 value = renameValue,
                 onValueChange = { renameValue = it },
                 onDismissRequest = { renameVisible = false },
                 title = "重命名滤镜",
-                placeholder = "输入滤镜名称",
+                placeholder = if (row.imported) "输入滤镜名称" else "留空则恢复默认（${row.defaultTitle}）",
                 clearContentDescription = "清空",
                 counter = "${renameValue.text.length}/$maxLen",
                 counterIsError = tooLong,
@@ -660,8 +699,9 @@ internal fun MasterFilterScreen(
                     colors = CouiDialogDefaults.primaryActionColors(scheme.accent),
                     onClick = {
                         renameVisible = false
-                        if (sanitized != row.title) {
-                            mutateLocal { store.renameImported(row.id, sanitized) }
+                        val target = if (!row.imported && sanitized == row.defaultTitle) "" else sanitized
+                        if (sanitized != row.title || (!row.imported && target.isEmpty() && row.renamed)) {
+                            mutateLocal { store.rename(row.id, target) }
                         }
                     },
                 ),
@@ -760,7 +800,7 @@ private fun FilterRow(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (row.imported) {
+            if (!row.preset) {
                 Box(
                     modifier = Modifier
                         .size(34.dp)
@@ -775,7 +815,9 @@ private fun FilterRow(
                         contentDescription = "重命名",
                     )
                 }
-                Spacer(Modifier.width(2.dp))
+                Spacer(Modifier.width(if (row.imported) 2.dp else 4.dp))
+            }
+            if (row.imported) {
                 Box(
                     modifier = Modifier
                         .size(34.dp)

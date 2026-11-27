@@ -150,6 +150,7 @@ void hookMaster(HookFunction hook, void *handle, const char *symbol, const char 
 
 constexpr const char *kV2 = "_ZN16HDRTransformImpl15processMasterV2EP10InputImageP5ImagePvS4_";
 constexpr const char *kQuick = "_ZN16HDRTransformImpl18processMasterQuickEP10InputImageP5ImagePvS4_";
+constexpr const char *kMaster = "_ZN16HDRTransformImpl13processMasterEP10InputImageP5ImagePvS4_";
 
 }  // namespace
 
@@ -159,9 +160,11 @@ void installHdrtDump(HookFunction hook, const char *name, void *handle) {
         camera = true;
         hookMaster<0>(hook, handle, kV2, "main");
         hookMaster<1>(hook, handle, kQuick, "quick");
+        hookMaster<4>(hook, handle, kMaster, "main-x8u");
     } else if (!quick && std::strstr(name, "libOPAlgoCamHDRTransformQuick.so")) {
         quick = true;
         hookMaster<2>(hook, handle, kV2, "main-q");
         hookMaster<3>(hook, handle, kQuick, "quick-q");
+        hookMaster<5>(hook, handle, kMaster, "quick-x8u");
     }
 }

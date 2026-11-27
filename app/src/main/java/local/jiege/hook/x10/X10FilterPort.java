@@ -149,8 +149,11 @@ public final class X10FilterPort {
             Class<?> helper = XposedHelpers.findClass("com.oplus.camera.filter.FilterHelper", classLoader);
             @SuppressWarnings("unchecked") Map<String, Integer> ids =
                 (Map<String, Integer>) XposedHelpers.getStaticObjectField(helper, "sFilterPathConvertMap");
-            putFilterId(ids, "qing_tou.bin", 123);
-            putFilterId(ids, "hu_po.bin", 124);
+            Integer cubeId = ids.get("Radiance.cube.rgb.bin");
+            int qtId = cubeId != null ? cubeId.intValue() : 123;
+            int hpId = cubeId != null ? cubeId.intValue() : 124;
+            putFilterId(ids, "qing_tou.bin", qtId);
+            putFilterId(ids, "hu_po.bin", hpId);
             putFilterId(ids, "qing_tou.bin,morning.dream.cube.rgb.bin", 1096);
             putFilterId(ids, "hu_po.bin,morning.dream.cube.rgb.bin", 1097);
             putFilterId(ids, "qing_tou.bin,nostalgic.scene.cube.rgb.bin", 2096);

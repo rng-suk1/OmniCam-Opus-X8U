@@ -249,8 +249,21 @@ public final class WatermarkHooks {
                 if (photo != null) Log.i(TAG, "DBG write " + photo + "=" + (param.args.length > 1 ? param.args[1] : "<remove>")
                     + " group=" + writeGroup() + " owner=" + store.owner() + " mode=" + store.mode() + " editing=" + (editing.get() != null)
                     + " thread=" + Thread.currentThread().getName() + " " + caller());
-                if (grOwner ? photo != null : gr) { param.setResult(null); return; }
                 EditResult edit = editing.get();
+                if (grOwner && photo != null) {
+                    // When the user opens the watermark editor from GR mode and picks a non-GR
+                    // photo watermark (e.g. Leica / Hasselblad), don't silently drop the edit:
+                    // record it against the current photo owner instead.
+                    if (edit == null) { param.setResult(null); return; }
+                    if (edit.state == null) {
+                        synchronized (store) {
+                            edit.state = store.live();
+                        }
+                    }
+                } else if (!grOwner && gr) {
+                    param.setResult(null);
+                    return;
+                }
                 if (photo != null && edit != null && edit.state != null) {
                     Object value = param.args.length > 1 ? param.args[1]
                         : CameraWatermarkStore.PHOTO_OPEN.equals(photo) ? Boolean.FALSE
@@ -359,9 +372,10 @@ public final class WatermarkHooks {
         if (!success || edit == null) return;
         synchronized (store) {
             if (edit.changed) {
-                if (resourcesReady) store.save(edit.group, edit.state);
-                else store.saveMemory(edit.group, edit.state);
-                if (edit.group.equals(store.owner())) store.apply(edit.state);
+                String target = WatermarkCore.GR.equals(edit.group) ? store.owner() : edit.group;
+                if (resourcesReady) store.save(target, edit.state);
+                else store.saveMemory(target, edit.state);
+                if (target.equals(store.owner())) store.apply(edit.state);
             }
             if (resourcesReady) store.available(store.live());
         }
