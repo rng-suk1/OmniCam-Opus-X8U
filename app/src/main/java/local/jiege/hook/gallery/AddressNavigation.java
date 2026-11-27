@@ -103,7 +103,11 @@ public final class AddressNavigation {
         int nameId = id(address, "tv_full_name");
         for (Object parent = address.getParent(); parent instanceof ViewGroup; parent = ((ViewGroup) parent).getParent()) {
             View name = ((ViewGroup) parent).findViewById(nameId);
-            if (name instanceof TextView) return ((TextView) name).getText().toString();
+            if (name instanceof TextView) {
+                String text = ((TextView) name).getText().toString();
+                int nl = text.indexOf('\n');
+                return nl >= 0 ? text.substring(0, nl).trim() : text;
+            }
         }
         return null;
     }

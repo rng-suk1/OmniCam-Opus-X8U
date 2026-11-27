@@ -8,6 +8,7 @@ import local.jiege.hook.common.Log;
 import local.jiege.hook.common.Symbols;
 import local.jiege.hook.aicomposition.AiComposition;
 import local.jiege.hook.capture.CaptureDumps;
+import local.jiege.hook.capture.RecipeExifWriter;
 import local.jiege.hook.filterpanel.LegacyFilterPanel;
 import local.jiege.hook.filters.FilterGroupInjector;
 import local.jiege.hook.filters.FilterCards;
@@ -15,6 +16,7 @@ import local.jiege.hook.filters.FilterLabels;
 import local.jiege.hook.gr.GrPort;
 import local.jiege.hook.gallery.AddressNavigation;
 import local.jiege.hook.gallery.BatchWatermark;
+import local.jiege.hook.gallery.GalleryRecipeDetails;
 import local.jiege.hook.gallery.GalleryLogoCandidates;
 import local.jiege.hook.gallery.GalleryCameraMoreGroup;
 import local.jiege.hook.gallery.GalleryMoreSeries;
@@ -104,6 +106,7 @@ public final class ModuleEntry implements IXposedHookLoadPackage, IXposedHookZyg
         } else if (GALLERY.equals(param.packageName)) {
             Symbols.install("gallery", classLoader, param.appInfo.sourceDir, param.appInfo.dataDir);
             AddressNavigation.installGallery(classLoader);
+            GalleryRecipeDetails.installGallery(classLoader);
             VideoOliveDuration.installGallery();
             if (!UnmountedGuard.filesMounted()) {
                 UnmountedGuard.installGallery();
@@ -172,6 +175,7 @@ public final class ModuleEntry implements IXposedHookLoadPackage, IXposedHookZyg
             MasterContrast.installCamera(classLoader);
             AiComposition.installCamera(classLoader);
             QuickRuler.installCamera(classLoader);
+            RecipeExifWriter.installCamera(classLoader);
         }
     }
 }

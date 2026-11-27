@@ -18,8 +18,8 @@ android {
         applicationId = "local.jiege.camera"
         minSdk = 31
         targetSdk = 35
-        versionCode = 612
-        versionName = "Opus 3.0.1 X8U"
+        versionCode = 613
+        versionName = "Opus 3.0.2 X8U"
         ndk { abiFilters += "arm64-v8a" }
         externalNativeBuild {
             cmake { arguments += listOf("-DANDROID_STL=c++_static") }

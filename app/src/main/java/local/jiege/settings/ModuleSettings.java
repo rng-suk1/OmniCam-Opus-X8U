@@ -179,6 +179,9 @@ public final class ModuleSettings {
     public static final int FILTER_PANEL_SWIPE_UP = 1;
     public static final int FILTER_PANEL_LONG_PRESS = 2;
 
+    /** Record capture recipe (mode, colour engine, filter, soft light) in EXIF and display in gallery details. */
+    public static final String PHOTO_RECIPE_EXIF = "photo_recipe_exif";
+
     private ModuleSettings() {}
 
     public static String defaultString(String key) {
@@ -266,6 +269,7 @@ public final class ModuleSettings {
             case NATURAL_NO_TELE_SR:
             case PRO_PEAKING_AF:
             case QUICK_EV_RULER:
+            case PHOTO_RECIPE_EXIF:
                 return true;
             default:
                 throw new IllegalArgumentException("Unknown setting " + key);

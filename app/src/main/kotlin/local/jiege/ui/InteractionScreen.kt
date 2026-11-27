@@ -254,6 +254,13 @@ internal fun InteractionScreen(
                     summary = presetName,
                     onClick = onOpenPresets,
                 )
+                UiDivider()
+                CouiSettingSwitch(
+                    store = store,
+                    key = ModuleSettings.PHOTO_RECIPE_EXIF,
+                    title = "相册详情显示拍摄配方",
+                    summary = "将模式、色彩引擎、滤镜与柔光写入 EXIF，并在相册上滑详情中展示",
+                )
             }
             Spacer(Modifier.height(16.dp))
         }
