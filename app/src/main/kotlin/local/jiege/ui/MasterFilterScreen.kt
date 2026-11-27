@@ -11,7 +11,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,11 +52,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.delay
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextRange
@@ -337,14 +344,16 @@ internal fun MasterFilterScreen(
     }
 
     var draggingId by remember { mutableStateOf<String?>(null) }
+    var activeDragPointerId by remember { mutableStateOf<PointerId?>(null) }
     var dragStart by remember { mutableIntStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
 
     val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
     LaunchedEffect(draggingId) {
         val activeId = draggingId ?: return@LaunchedEffect
         val edgePx = with(density) { 88.dp.toPx() }
-        val maxStepPx = with(density) { 14.dp.toPx() }
+        val maxStepPx = with(density) { 16.dp.toPx() }
         while (draggingId == activeId) {
             val info = listState.layoutInfo
             val current = info.visibleItemsInfo.firstOrNull { it.key == activeId }
@@ -352,15 +361,15 @@ internal fun MasterFilterScreen(
             if (current != null && draggedRow != null) {
                 val topEdge = current.offset + dragOffset
                 val bottomEdge = current.offset + current.size + dragOffset
-                val topZone = info.viewportStartOffset + edgePx
-                val bottomZone = info.viewportEndOffset - edgePx
+                val topZone = info.viewportStartOffset + info.beforeContentPadding + edgePx
+                val bottomZone = info.viewportEndOffset - info.afterContentPadding - edgePx
                 val scrollStep = when {
                     topEdge < topZone -> {
-                        val ratio = ((topZone - topEdge) / edgePx).coerceIn(0.15f, 1.5f)
+                        val ratio = ((topZone - topEdge) / edgePx).coerceIn(0.15f, 1.8f)
                         -maxStepPx * ratio
                     }
                     bottomEdge > bottomZone -> {
-                        val ratio = ((bottomEdge - bottomZone) / edgePx).coerceIn(0.15f, 1.5f)
+                        val ratio = ((bottomEdge - bottomZone) / edgePx).coerceIn(0.15f, 1.8f)
                         maxStepPx * ratio
                     }
                     else -> 0f
@@ -368,8 +377,14 @@ internal fun MasterFilterScreen(
                 if (scrollStep != 0f) {
                     val consumed = listState.scrollBy(scrollStep)
                     if (consumed != 0f) {
-                        dragOffset -= swapUnderDrag(listState, rows, draggedRow, dragOffset)
+                        // 列表滚动后补偿位移，使被拖动项始终紧跟手指
+                        dragOffset += consumed
                     }
+                }
+                val swapped = swapUnderDrag(listState, rows, draggedRow, dragOffset)
+                if (swapped != 0f) {
+                    dragOffset -= swapped
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }
             }
             delay(16L)
@@ -390,6 +405,33 @@ internal fun MasterFilterScreen(
         userScrollEnabled = draggingId == null,
         modifier = Modifier
             .fillMaxSize()
+            .pointerInput(Unit) {
+                // 双手排序支持：一手按住数据项时，另一只手可在列表任意位置上下滑动
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        val activeId = draggingId ?: continue
+                        val dragPid = activeDragPointerId ?: continue
+                        val other = event.changes.firstOrNull { it.id != dragPid && it.pressed } ?: continue
+                        val dy = other.position.y - other.previousPosition.y
+                        if (dy != 0f) {
+                            other.consume()
+                            val consumed = listState.dispatchRawDelta(-dy)
+                            if (consumed != 0f) {
+                                dragOffset += consumed
+                                val draggedRow = rows.firstOrNull { it.id == activeId }
+                                if (draggedRow != null) {
+                                    val swapped = swapUnderDrag(listState, rows, draggedRow, dragOffset)
+                                    if (swapped != 0f) {
+                                        dragOffset -= swapped
+                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             .nestedScroll(nestedScroll),
         contentPadding = contentPadding,
         overscrollEffect = overscrollEffect,
@@ -406,6 +448,7 @@ internal fun MasterFilterScreen(
                     selectedIndex = segment,
                     onSelected = {
                         draggingId = null
+                        activeDragPointerId = null
                         dragOffset = 0f
                         onSegmentChange(it)
                     },
@@ -431,6 +474,7 @@ internal fun MasterFilterScreen(
                     selectedKey = chip,
                     onSelectedKeyChange = {
                         draggingId = null
+                        activeDragPointerId = null
                         dragOffset = 0f
                         onChipOrdinalChange((it as FilterChip).ordinal)
                     },
@@ -440,7 +484,7 @@ internal fun MasterFilterScreen(
             if (chip == FilterChip.ALL) {
                 item(key = "shown_title") {
                     UiText(
-                        text = "显示中（${shown.size}）· 长按右侧拖动",
+                        text = "显示中（${shown.size}）· 按住右侧拖动",
                         kind = CouiTextKind.GroupTitle,
                         color = CouiTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Start,
@@ -459,19 +503,26 @@ internal fun MasterFilterScreen(
                         dragModifier = dragModifier(
                             row = row,
                             busy = busy,
-                            onStart = {
+                            onStart = { pointerId ->
                                 draggingId = row.id
+                                activeDragPointerId = pointerId
                                 dragStart = rows.indexOfFirst { it.id == row.id }
                                 dragOffset = 0f
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             onDrag = { deltaY ->
                                 dragOffset += deltaY
-                                dragOffset -= swapUnderDrag(listState, rows, row, dragOffset)
+                                val swapped = swapUnderDrag(listState, rows, row, dragOffset)
+                                if (swapped != 0f) {
+                                    dragOffset -= swapped
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
                             },
                             onEnd = {
                                 val from = dragStart
                                 val to = rows.indexOfFirst { it.id == row.id }
                                 draggingId = null
+                                activeDragPointerId = null
                                 dragOffset = 0f
                                 if (from >= 0 && to >= 0 && from != to) {
                                     mutateLocal { store.move(from, to) }
@@ -479,6 +530,7 @@ internal fun MasterFilterScreen(
                             },
                             onCancel = {
                                 draggingId = null
+                                activeDragPointerId = null
                                 dragOffset = 0f
                                 scope.launch { reloadLocal() }
                             },
@@ -849,10 +901,10 @@ private fun FilterRow(
                 )
             }
             if (draggable) {
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(2.dp))
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(44.dp)
                         .then(dragModifier),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -860,7 +912,7 @@ private fun FilterRow(
                         imageVector = DragHandleIcon,
                         tint = scheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp),
-                        contentDescription = "长按拖动排序",
+                        contentDescription = "按住拖动排序",
                     )
                 }
             }
@@ -887,19 +939,30 @@ private fun groupShape(group: List<MasterFilterStore.Row>, row: MasterFilterStor
 private fun dragModifier(
     row: MasterFilterStore.Row,
     busy: Boolean,
-    onStart: () -> Unit,
+    onStart: (PointerId) -> Unit,
     onDrag: (Float) -> Unit,
     onEnd: () -> Unit,
     onCancel: () -> Unit,
 ): Modifier {
     if (busy) return Modifier
     return Modifier.pointerInput(row.id, row.visible) {
-        detectDragGesturesAfterLongPress(
-            onDragStart = { onStart() },
-            onDrag = { change, amount -> change.consume(); onDrag(amount.y) },
-            onDragEnd = { onEnd() },
-            onDragCancel = { onCancel() },
-        )
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            down.consume()
+            onStart(down.id)
+            var finished = false
+            try {
+                finished = drag(down.id) { change ->
+                    val dy = change.positionChange().y
+                    if (dy != 0f) {
+                        change.consume()
+                        onDrag(dy)
+                    }
+                }
+            } finally {
+                if (finished) onEnd() else onCancel()
+            }
+        }
     }
 }
 
@@ -919,7 +982,14 @@ private fun swapUnderDrag(
     val from = rows.indexOfFirst { it.id == dragged.id }
     val to = rows.indexOfFirst { it.id == target.key }
     if (from < 0 || to < 0) return 0f
+    val firstIndex = state.firstVisibleItemIndex
+    val firstOffset = state.firstVisibleItemScrollOffset
+    val touchesFirst = current.index == firstIndex || target.index == firstIndex
     rows.add(to, rows.removeAt(from))
+    if (touchesFirst) {
+        // 锚定首项滚动位置，防止交换涉及首项时 LazyColumn 视口跳动
+        state.requestScrollToItem(firstIndex, firstOffset)
+    }
     return (target.offset - current.offset).toFloat()
 }
 
